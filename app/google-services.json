@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "33010753428",
+    "firebase_url": "https://horta-inteligente-5231c.firebaseio.com",
+    "project_id": "horta-inteligente-5231c",
+    "storage_bucket": "horta-inteligente-5231c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33010753428:android:0c896b083b909c9cf83981",
+        "android_client_info": {
+          "package_name": "com.example.horta_inteligente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "33010753428-2jetsn3eieahp6rcsg00ucrc0bsombtq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB0T2P3nN2-qE3gwKNmug5_Rwn9PgFxbA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "33010753428-2jetsn3eieahp6rcsg00ucrc0bsombtq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
