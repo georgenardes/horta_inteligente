@@ -24,10 +24,11 @@
             android:orientation="vertical">
 
             <Switch
-                android:id="@+id/switch1"
+                android:id="@+id/switchModo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="false"
+                android:onClick="onSwitch"
                 android:text="Modo Automático"
                 android:textSize="18sp"
                 tools:checked="false" />
@@ -47,13 +48,13 @@
                     android:id="@+id/textView17"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Humidade solo"
+                    android:text="Umidade solo"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
-                    android:id="@+id/editTextTextPersonName"
+                    android:id="@+id/etUmidadeBase"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -78,7 +79,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
-                    android:id="@+id/editTextTextPersonName1"
+                    android:id="@+id/etTemperaturaBase"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -86,7 +87,8 @@
                     android:text="28"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -103,7 +105,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
-                    android:id="@+id/editTextTextPersonName2"
+                    android:id="@+id/etLuminosidadeBase"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -141,7 +143,7 @@
                     android:text="Humidade Solo" />
 
                 <TextView
-                    android:id="@+id/textView10"
+                    android:id="@+id/tvSenUmidade"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -161,7 +163,7 @@
                     android:text="Temperatura" />
 
                 <TextView
-                    android:id="@+id/textView12"
+                    android:id="@+id/tvSenTemperatura"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -181,7 +183,7 @@
                     android:text="Luminosidade" />
 
                 <TextView
-                    android:id="@+id/textView14"
+                    android:id="@+id/tvSensLuminosidade"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -202,7 +204,7 @@
                     android:text="Nivel de água" />
 
                 <TextView
-                    android:id="@+id/textView16"
+                    android:id="@+id/tvSensNivel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -229,7 +231,7 @@
                     android:text="Ventilação" />
 
                 <TextView
-                    android:id="@+id/textView32"
+                    android:id="@+id/tvAtVentilador"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -249,7 +251,7 @@
                     android:text="Irrigação" />
 
                 <TextView
-                    android:id="@+id/textView33"
+                    android:id="@+id/tvAtBomba"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -270,7 +272,7 @@
                     android:text="Iluminação" />
 
                 <TextView
-                    android:id="@+id/textView36"
+                    android:id="@+id/tvAtLampada"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -290,10 +292,11 @@
                 android:orientation="horizontal">
 
                 <Switch
-                    android:id="@+id/switch4"
+                    android:id="@+id/switchVentilador"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:onClick="onSwitch"
                     android:text="Ventilador" />
             </LinearLayout>
 
@@ -303,10 +306,11 @@
                 android:orientation="horizontal">
 
                 <Switch
-                    android:id="@+id/switch5"
+                    android:id="@+id/switchBomba"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:onClick="onSwitch"
                     android:text="Irrigador" />
             </LinearLayout>
 
@@ -316,12 +320,20 @@
                 android:orientation="horizontal">
 
                 <Switch
-                    android:id="@+id/switch6"
+                    android:id="@+id/switchLampada"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:onClick="onSwitch"
                     android:text="Iluminador" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClickSalvar"
+                android:text="Salvar" />
         </LinearLayout>
     </ScrollView>
 
