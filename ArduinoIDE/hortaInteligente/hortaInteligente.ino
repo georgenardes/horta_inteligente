@@ -3,6 +3,7 @@
 #include <FirebaseESP32HTTPClient.h>
 #include <FirebaseJson.h>
 #include <jsmn.h>
+#include "DHT.h"      // biblioteca sensor de temperatura
 
 // BIBLIOTECA PARA TRABALHAR COM NTP SERVER
 #include <NTPClient.h>
@@ -25,15 +26,19 @@
 #define NIVEL_PIN 35              // PINO DO SENSOR PIR
 
 
+// Sensor de temperatura
+#define DHTTYPE DHT11
+DHT dht(TEMP_PIN, DHTTYPE);
+
 #define THRESHOLD_NIVEL 2000
 
 FirebaseData firebaseData;        // INSTANCIA DO FIREBASE
 
 int ldr_value = 0;                // variaveis de entrada de sensor
 int um_value = 0;                 // variaveis de entrada de sensor
-int temp_value = 0;               // variaveis de entrada de sensor
-
+float temp_value = 0;               // variaveis de entrada de sensor
 String hora_atual = "";           // variavel para armazenar a hora atual
+
 
 bool alterado = false;            // variavel para saber se houve alteração no banco
 
@@ -79,6 +84,9 @@ void setup() {
   pinMode(UM_PIN, INPUT);                   // pino para ler pir
   pinMode(TEMP_PIN, INPUT);                 // pino para ler pir
   pinMode(NIVEL_PIN, INPUT);                // pino para ler pir
+
+  // inicia o monitoramento DHT
+  dht.begin();
 
   timeClient.begin();                       // inicia client
   timeClient.setTimeOffset(-10800);         // timeset para operar no horario de brasilia   
@@ -144,9 +152,10 @@ void loop() {
 
   /* seção de controle dos atuadores */
   switch (modo_operacao){
+    
     case 0:               // modo de operação por controle manual
       Serial.println("modo operação manual");  
-      if(Firebase.getBool(firebaseData, "/controle/lampada")){ // busca o valor da variavel acender
+      if(Firebase.getBool(firebaseData, "/controle/lampada")){    // busca o valor da variavel lampada
         if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo          
           acender_lamp = firebaseData.boolData();                 // valor retornado
           digitalWrite(LED_PIN, acender_lamp);                    // ativa/desativa led conforme comando acender
@@ -157,10 +166,10 @@ void loop() {
         Serial.println("Erro no retrieve");
       }
 
-      if(Firebase.getBool(firebaseData, "/controle/bomba_agua")){ // busca o valor da variavel acender
+      if(Firebase.getBool(firebaseData, "/controle/bomba_agua")){ // busca o valor da variavel bomba_agua
         if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo          
           acionar_bomba = firebaseData.boolData();                // valor retornado
-          digitalWrite(BOMBA_PIN, acionar_bomba);                 // ativa/desativa led conforme comando acender
+          digitalWrite(BOMBA_PIN, acionar_bomba);                 // ativa/desativa bomba conforme comando acender
         }else{
           Serial.println("Data type not bool");  
         }
@@ -168,10 +177,10 @@ void loop() {
         Serial.println("Erro no retrieve");
       }
 
-      if(Firebase.getBool(firebaseData, "/controle/ventilador")){ // busca o valor da variavel acender
+      if(Firebase.getBool(firebaseData, "/controle/ventilador")){ // busca o valor da variavel ventilador
         if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo          
           acionar_ventoinha = firebaseData.boolData();            // valor retornado
-          digitalWrite(VENTOINHA_PIN, acionar_ventoinha);         // ativa/desativa led conforme comando acender
+          digitalWrite(VENTOINHA_PIN, acionar_ventoinha);         // ativa/desativa ventoinha conforme comando acender
         }else{
           Serial.println("Data type not bool");  
         }
@@ -180,48 +189,49 @@ void loop() {
       }
       
       break;
--------------------------------------------------------------------------------------------------------------------------
-    case 1:               // modo de operação automatico
-      acender_lamp = digitalRead(PIR_PIN);      // le o estado do sensor PIR      
-      digitalWrite(LED_PIN, acender);           // ativa/desativa led conforme comando acender      
-      if (acender == true)                      // se o comando for de acender
-        delay(tempo_desligar*1000);             // mantem aceso por pelo menos 'tempo_desligar' segundos
 
-      acender = (analogRead(LDR_PIN) > THRESHOLD_LDR);  // le o estado do sensor LDR e compara com o threshold      
-      digitalWrite(LED_PIN, acender);                   // ativa/desativa led conforme comando acender
-      break;
-
+    case 1:       // modo de operação automatico
+    
+      while(!timeClient.update()){                                 // atualiza hora atual
+        timeClient.forceUpdate();                                  // atualiza hora atual
+      }
       
-      break;
-    
-    case 2:               // modo de operação por sensor LDR      
-      acender = (analogRead(LDR_PIN) > THRESHOLD_LDR);  // le o estado do sensor LDR e compara com o threshold      
-      digitalWrite(LED_PIN, acender);                   // ativa/desativa led conforme comando acender
-      break;
-    
-    case 3:                // modo operação por tempo definido
-      while(!timeClient.update()){                // atualiza hora atual
-        timeClient.forceUpdate();                 // atualiza hora atual
-      }
-      hora_atual = timeClient.getFormattedTime(); // busca hora atual do serviro NTP
-
-
-      if (estado_lamp == true){
-        if (hora_atual > h_apagar){
-          digitalWrite(LED_PIN, false);                   // ativa/desativa led conforme comando acender
+      hora_atual = timeClient.getFormattedTime();                 // busca hora atual do serviro NTP
+      
+      if (estado_lamp == false){                                  // Se a lampada estiver apagada
+        if (hora_atual > "08:00"){                                // Se hora atual for maior que as 8 da manha
+          acender_lamp =  (analogRead(LDR_PIN) > ldr_value);      // le o estado do sensor LDR     
+          digitalWrite(LED_PIN, acender_lamp);                    // ativa led conforme comando acender_lamp
         }
-      } else {
-        if (hora_atual > h_acender){
-          digitalWrite(LED_PIN, true);                    // ativa/desativa led conforme comando acender
+      } else {                                                    // Se lampada estiver acesa
+        if (hora_atual > "18:00"){                                // Se hora atual passar das 18h
+          digitalWrite(LED_PIN, false);                           // Desativa led 
         }
       }
-    break;
-    
-    default:
-    break;
+
+      float temp_sensor = dht.readTemperature();       // Le sensor de temperatura
+      if(temp_sensor > temp_value){                    // Se temperatura atual for maior que a delimitada
+        acionar_ventoinha = true;
+        digitalWrite(VENTOINHA_PIN, acionar_ventoinha);// Aciona ventoinha
+      }else{
+        acionar_ventoinha = false;
+        digitalWrite(VENTOINHA_PIN, acionar_ventoinha);// Desativa ventoinha
+      }
+      
+      bool nivel_value = digitalRead(NIVEL_PIN);
+      int um_sensor = analogRead(UM_PIN);
+      if(nivel_value){                           // se tem agua
+        if(um_sensor > um_value){                // Se umidade atual for maior que a delimitada
+          acionar_bomba = true;
+          digitalWrite(BOMBA_PIN, acionar_bomba);// Aciona bomba
+        }else{
+          acionar_bomba = false;
+          digitalWrite(BOMBA_PIN, acionar_bomba);// Aciona bomba
+        }
+      }
+       
+      break;  
   }
-  
----------------------------------------------------------------------------------------------------------------
   
   if (estado_lamp != acender_lamp){
     if(Firebase.setBool(firebaseData, "/atuadores/lampada", acender)){   // atualiza banco com o valor      
