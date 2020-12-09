@@ -1,7 +1,8 @@
-// BIBLIOTECAS PARA TRABALHAR COM FIREBASE
+#include <FB_HTTPClient32.h>
 #include <FirebaseESP32.h>
-#include <FirebaseESP32HTTPClient.h>
 #include <FirebaseJson.h>
+
+// BIBLIOTECAS PARA TRABALHAR COM FIREBASE
 #include <jsmn.h>
 #include "DHT.h"      // biblioteca sensor de temperatura
 
@@ -37,6 +38,7 @@ FirebaseData firebaseData;        // INSTANCIA DO FIREBASE
 int ldr_value = 0;                // variaveis de entrada de sensor
 int um_value = 0;                 // variaveis de entrada de sensor
 float temp_value = 0;               // variaveis de entrada de sensor
+bool nivel_value = false;
 String hora_atual = "";           // variavel para armazenar a hora atual
 
 
@@ -153,7 +155,7 @@ void loop() {
   switch (modo_operacao){
     
     case 0:               // modo de operação por controle manual
-      bool nivel_value = digitalRead(NIVEL_PIN);
+      nivel_value = digitalRead(NIVEL_PIN);
       Serial.println("modo operação manual");  
       if(Firebase.getBool(firebaseData, "/controle/lampada")){    // busca o valor da variavel lampada
         if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo          
@@ -189,7 +191,6 @@ void loop() {
       }else {
         Serial.println("Erro no retrieve");
       }
-      
       break;
 
     case 1:       // modo de operação automatico
@@ -220,7 +221,7 @@ void loop() {
         digitalWrite(VENTOINHA_PIN, acionar_ventoinha);// Desativa ventoinha
       }
       
-      bool nivel_value = digitalRead(NIVEL_PIN);
+      nivel_value = digitalRead(NIVEL_PIN);
       int um_sensor = analogRead(UM_PIN);
       if(nivel_value){                           // se tem agua
         if(um_sensor > um_value){                // Se umidade atual for maior que a delimitada
@@ -236,17 +237,17 @@ void loop() {
   }
   
   if (estado_lamp != acender_lamp){
-    if(Firebase.setBool(firebaseData, "/atuadores/lampada", acender)){   // atualiza banco com o valor      
+    if(Firebase.setBool(firebaseData, "/atuadores/lampada", acender_lamp)){   // atualiza banco com o valor      
       estado_lamp = acender_lamp;
     }
   }
   if (estado_bomba != acionar_bomba){
-    if(Firebase.setBool(firebaseData, "/atuadores/bomba_agua", acender)){ // atualiza banco com o valor      
+    if(Firebase.setBool(firebaseData, "/atuadores/bomba_agua", acionar_bomba)){ // atualiza banco com o valor      
       estado_bomba = acionar_bomba;
     }
   }
   if (estado_ventoinha != acionar_ventoinha){
-    if(Firebase.setBool(firebaseData, "/estado_ventoinha", acender)){     // atualiza banco com o valor      
+    if(Firebase.setBool(firebaseData, "/estado_ventoinha", acionar_ventoinha)){     // atualiza banco com o valor      
       estado_ventoinha = acionar_ventoinha;
     }
   }
