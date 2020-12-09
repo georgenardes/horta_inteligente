@@ -267,12 +267,22 @@ public class MainActivity extends AppCompatActivity {
         dbrConfigLuminosidade.setValue(iLuminosidadeBase);
         dbrConfigTemperatura.setValue(iTemperaturaBase);
         dbrConfigUmidade.setValue(iUmidadebase);
+
+        DatabaseReference dbrAlterado = database.getReference(
+                "alterado"
+        );
+        dbrAlterado.setValue(true);
     }
 
     public void onSwitch(View v){
 
         // referencia ao banco e as variaveis
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        DatabaseReference dbrAlterado = database.getReference(
+                "alterado"
+        );
+
         DatabaseReference dbrModo = database.getReference(
                 "modo"
         );
@@ -321,9 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-
-
-
+        dbrAlterado.setValue(true);
     }
 
 }
