@@ -99,7 +99,6 @@ void setup() {
   * depois é realizado o controle de iluminação. 
   */
 void loop() {
-  
   if(Firebase.getBool(firebaseData, "/alterado")){  // busca o valor da variavel alterado
     if(firebaseData.dataType() == "boolean"){       // se o tipo retornado estiver certo          
       alterado = firebaseData.boolData();           // valor retornado
@@ -154,6 +153,7 @@ void loop() {
   switch (modo_operacao){
     
     case 0:               // modo de operação por controle manual
+      bool nivel_value = digitalRead(NIVEL_PIN);
       Serial.println("modo operação manual");  
       if(Firebase.getBool(firebaseData, "/controle/lampada")){    // busca o valor da variavel lampada
         if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo          
@@ -167,9 +167,11 @@ void loop() {
       }
 
       if(Firebase.getBool(firebaseData, "/controle/bomba_agua")){ // busca o valor da variavel bomba_agua
-        if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo          
-          acionar_bomba = firebaseData.boolData();                // valor retornado
-          digitalWrite(BOMBA_PIN, acionar_bomba);                 // ativa/desativa bomba conforme comando acender
+        if(firebaseData.dataType() == "boolean"){                 // se o tipo retornado estiver certo         
+          if(nivel_value){  
+            acionar_bomba = firebaseData.boolData();                // valor retornado
+            digitalWrite(BOMBA_PIN, acionar_bomba);                 // ativa/desativa bomba conforme comando acender
+          }
         }else{
           Serial.println("Data type not bool");  
         }
